@@ -1,4 +1,8 @@
-﻿namespace specflowselenium.Bindings
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OpenQA.Selenium.Support.UI;
+
+namespace specflowselenium.Bindings
 {
     using OpenQA.Selenium;
     using OpenQA.Selenium.Firefox;
@@ -34,15 +38,21 @@
         }
 
         [Then(@"a link with text '(.*)' must be present")]
-        public void ThenALinkWithTextMustBePresent(string p0)
+        public void ThenALinkWithTextMustBePresent(string LinkText)
         {
-            ScenarioContext.StepIsPending();
+            IWebElement webElement =  new WebDriverWait(Driver, TimeSpan.FromSeconds(10)).Until(
+                driver => driver.FindElement(By.PartialLinkText(LinkText)));
+            Assert.IsTrue(webElement.Displayed);
         }
 
         [Then(@"the '(.*)' box must contain '(.*)' at index '(.*)'")]
-        public void ThenTheBoxMustContainAtIndex(string p0, string p1, string p2)
+        public void ThenTheBoxMustContainAtIndex(string BoxValue, string ExpectedValue, string Index)
         {
-            ScenarioContext.StepIsPending();
+            IWebElement root = new WebDriverWait(Driver, TimeSpan.FromSeconds(10)).Until(driver =>
+                driver.FindElement(By.XPath(String.Format("//h2[text()='{0}']/parent::div", BoxValue))));
+            var ActualValue = root.FindElement(By.XPath($"ul/li[{Index}]/a")).Text;
+
+            Assert.AreEqual(ExpectedValue, ActualValue);
         }
     }
 }
